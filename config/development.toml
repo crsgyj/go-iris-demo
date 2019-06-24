@@ -1,0 +1,9 @@
+[app] 
+  port = ":12350"
+  allowedOrigins = ["http://localhost:12351"]
+[redis]
+  addr = "127.0.0.1:6379"
+  password = ""
+[baiduFY]
+  appid = "20190523000301229"
+  key = "O9UDx_J0nE4fPa2tUYCG"

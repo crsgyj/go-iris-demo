@@ -1,0 +1,12 @@
+.container[data-v-135a16] {
+  width: 100%;
+  box-sizing: border-box;
+  height: 100vh;
+  background: #fefefe;
+  padding: 16px;
+}
+.container .btns[data-v-135a16] {
+  text-align: left;
+  margin-bottom: 16px;
+}
+

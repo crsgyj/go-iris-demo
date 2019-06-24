@@ -1,0 +1,41 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "serve": "rm -rf dev && parcel serve ./index.html --global app --port 12351 --out-dir dev --open",
+    "build": "rm -rf dist && parcel build ./index.html"
+  },
+  "dependencies": {
+    "@babel/plugin-syntax-async-generators": "^7.2.0",
+    "axios": "^0.19.0",
+    "axios-jsonp": "^1.0.2",
+    "babel-plugin-component": "^1.1.1",
+    "components": "^0.1.0",
+    "element-ui": "^2.9.2",
+    "lodash": "^4.17.11",
+    "md5": "^2.2.1",
+    "parcel-bundler": "^1.12.3",
+    "vue": "^2.6.10",
+    "vue-hot-reload-api": "^2.3.3",
+    "vue-router": "^3.0.6",
+    "xlsx": "^0.14.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@vue/component-compiler-utils": "^3.0.0",
+    "babel-plugin-runtime": "^1.0.7",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "sass": "^1.21.0",
+    "stylus": "^0.54.5",
+    "typescript": "^3.5.2",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "alias": {
+    "vue": "./node_modules/vue/dist/vue.common.js"
+  }
+}
