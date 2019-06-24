@@ -20,12 +20,13 @@ type Goods struct {
 
 // Item - item of goods
 type Item struct {
-	GoodsID string `json:"goods_id" validate:"required,gt=1"`
-	Name    string `json:"name" validate:"required,gt=1"`
-	NameE   string `json:"name_e"`
-	Addr    string `json:"addr" validate:"required"`
-	AddrE   string `json:"addr_e"`
-	Tag     string `json:"tag"`
+	GoodsID     string `json:"goods_id" validate:"required,gt=1"`
+	Name        string `json:"name" validate:"required,gt=1"`
+	NameE       string `json:"name_e"`
+	Addr        string `json:"addr" validate:"required"`
+	AddrE       string `json:"addr_e"`
+	Tag         string `json:"tag"`
+	CreatedDate string `json:"created_date"`
 }
 
 // ItemList - list of item
@@ -37,12 +38,13 @@ func (g *Goods) AddGoods(source []Item) []redisdb.Z {
 	score := dateScore(time.Now())
 
 	members := make([]redisdb.Z, len(source))
-	for i, Item := range source {
-		members[i].Score = float64(score)
-		members[i].Member = Item.GoodsID
-		m, _ := json.Marshal(Item)
+	for i, item := range source {
+		item.CreatedDate = strconv.FormatFloat(score, 'f', -1, 64)
+		members[i].Score = score
+		members[i].Member = item.GoodsID
+		m, _ := json.Marshal(item)
 		t := time.Second*3600*24*31 + /* 为了不在同一时间解锁 */ time.Duration(utils.RandInt(600))*time.Second
-		g.redis.Set("goods_item:"+Item.GoodsID, m, t)
+		g.redis.Set("goods_item:"+item.GoodsID, m, t)
 	}
 	// reids zadd goods
 	cmd := g.redis.ZAdd("goods_zset", members...)
