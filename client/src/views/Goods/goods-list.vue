@@ -22,6 +22,7 @@
             :prop="collumn.prop"
             :label="collumn.label"
             :width="collumn.width"
+            :formatter="collumn.formatter"
           ></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
@@ -100,6 +101,14 @@ export default {
           prop: "addr_e",
           label: "地址(英文)",
           width: "300"
+        },
+        {
+          prop: "created_date",
+          label: "录入时间",
+          width: "120",
+          formatter: ({ created_date }) => {
+            return created_date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1/$2/$3')
+          }
         }
       ],
       timeout: null
