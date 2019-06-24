@@ -22,7 +22,7 @@ database:
 $ docker run -p 6379:6379 --name redis redis@latest
 ```
 
- 	if you not ,  visit  https://redis.io/download to download redis is also a good choice.
+if you not ,  visit  https://redis.io/download to download redis is also a good choice.
 
 server:
 
