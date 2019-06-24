@@ -2,8 +2,9 @@ package redisdb
 
 import (
 	"encoding/json"
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 var (
@@ -25,7 +26,7 @@ func New(options *Options) *Client {
 
 func initOnlyUser(c *Client) {
 	// 查询admin用户是否存在
-	user := c.Get("user:" + adminUser.Username + "12").Val()
+	user := c.Get("user:" + adminUser.Username).Val()
 	if user != "" {
 		return
 	}
