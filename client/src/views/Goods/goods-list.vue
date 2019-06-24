@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import editForm from "./editForm";
+import editForm from "./edit-form";
 
 export default {
   components: {
@@ -190,9 +190,7 @@ export default {
             let str = "";
             try {
               str = resp.data.message;
-            } catch (e) {
-              console.log(e);
-            }
+            } catch (e) {}
             return str;
           })();
           this.$message.error("删除失败。" + reason);

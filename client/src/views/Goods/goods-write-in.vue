@@ -61,7 +61,7 @@ import axios from "axios";
 import axiosjsonp from "axios-jsonp";
 import _ from "lodash";
 
-import editForm from "./editForm";
+import editForm from "./edit-form";
 
 export default {
   components: {
@@ -113,7 +113,7 @@ export default {
     uploadTable() {
       this.hasTranslated = false;
       if (this.list && this.list.length) {
-        return this.delTable();
+        return this.deleteTable();
       }
       // 清除上次选择
       this.$refs.file.value = "";
@@ -128,10 +128,10 @@ export default {
       let self = this;
       let file = this.$refs.file.files[0];
       if (!file) return;
-      const reader = new FileReader();
+      let reader = new FileReader();
       reader.readAsArrayBuffer(file);
       reader.onload = function(e) {
-        var workBook = XLSX.read(e.target.result, { type: "buffer" });
+        let workBook = XLSX.read(e.target.result, { type: "buffer" });
         if (!workBook.Workbook) {
           return;
         }
@@ -142,7 +142,8 @@ export default {
         let goodsData = XLSX.utils.sheet_to_json(firstSheet, {
           header: "A",
           blankrows: false,
-          defval: ""
+          defval: "",
+          // range: "" range可以用户选择
         });
         goodsData = goodsData.map(e => ({
           goods_id: String(e.A),
@@ -152,11 +153,9 @@ export default {
           addr_e: ""
         }));
         self.list = goodsData;
-        // var excelData = XLSX.utils.sheet_to_json(workBook.Sheets.Sheet1, { header: "A", blankrows: false, defval: ""});
-        // console.log("excelData: ",excelData);
       };
     },
-    delTable() {
+    deleteTable() {
       this.list = null;
     },
     async translate() {
@@ -169,7 +168,6 @@ export default {
         try {
           let chunckRst = await this.commTask(chunck);
           result = result.concat(chunckRst);
-          console.log(chunckRst);
         } catch (err) {
           let errResp = err.response;
 
@@ -203,9 +201,8 @@ export default {
       let { resp, err } = await this.fetchBaiduAccess(q);
       if (err) {
         throw err;
-      } else {
-        access = resp.data;
-      }
+      } 
+      access = resp.data;
       try {
         let resp = await this.$http.get(this.$config.baiduFY, {
           params: {
@@ -219,15 +216,15 @@ export default {
           adapter: axiosjsonp
         });
         let trans_result = resp.data.trans_result;
-        let list = chunck.slice();
-        for (let i in list) {
-          list[i].name_e = trans_result[i * 2].dst;
-          list[i].addr_e = trans_result[i * 2 + 1].dst;
+        for (let i in chunck) {
+          chunck[i].name_e = trans_result[i * 2].dst;
+          chunck[i].addr_e = trans_result[i * 2 + 1].dst;
         }
-        return list;
       } catch (err) {
         throw new Error("baiduFY error: ", err.message);
       }
+
+      return chunck
     },
     writeIn() {
       if (!this.canWriteIn) {
