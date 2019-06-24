@@ -1,5 +1,5 @@
-# go-iris 实践
----
+# go-iris 实践 - 货品录入系统
+
 I wrote nodejs before, now try go-iris.
 我之前写nodejs, 现在尝试go-iris。
 
