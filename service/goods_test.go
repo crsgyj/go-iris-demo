@@ -11,7 +11,7 @@ import (
 func TestDateScore(t *testing.T) {
 	score := dateScore(time.Now())
 
-	result := assert.So(score, should.BeGreaterThan, 20190618 /*yesterday*/)
+	result := assert.So(score, should.BeGreaterThan, 20190623 /*yesterday*/)
 
 	if result.Error() != nil {
 		t.Fail()
