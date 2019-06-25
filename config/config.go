@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/pelletier/go-toml"
 )
@@ -28,7 +29,8 @@ type Config struct {
 }
 
 func newConf() *Config {
-	conf, err := toml.LoadFile("D:\\crsgy\\project\\go_project\\src\\comm-filter\\config\\development.toml")
+	configDirPath, _ := os.Getwd()
+	conf, err := toml.LoadFile(configDirPath + "/config/development.toml")
 	if err != nil {
 		fmt.Println("TomlError ", err.Error())
 	}
