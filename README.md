@@ -1,7 +1,7 @@
 # go-iris 实践 - 货品录入系统
 
-The tiny project to explain and also to learn 
- that how to use golang to build a api server.
+A tiny project to explain and also to learn 
+ that how to use golang to build a api server by a nodejs development who just start golang.
 
 ### 
 
