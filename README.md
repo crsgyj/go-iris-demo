@@ -25,13 +25,19 @@ $ docker run -p 6379:6379 --name redis redis@latest
 server:
 
 ```go
-$ go run main.go
+[dev]:
+$ go run comm-filter
+[build]: run the command and create config file["config.toml"] on ${GOPATH}/bin/config/
+$ go install comm-filter       
 ```
 
 client: 
 
 ```javascript
+[dev]:
 $ cd client && yarn && yarn serve
+[build]:
+$ cd client && yarn build
 ```
 
 

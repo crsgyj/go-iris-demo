@@ -30,7 +30,7 @@ type Config struct {
 
 func newConf() *Config {
 	configDirPath, _ := os.Getwd()
-	conf, err := toml.LoadFile(configDirPath + "/config/development.toml")
+	conf, err := toml.LoadFile(configDirPath + "/comm-filter/config/config.toml")
 	if err != nil {
 		fmt.Println("TomlError ", err.Error())
 	}
