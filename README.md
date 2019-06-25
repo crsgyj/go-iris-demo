@@ -1,7 +1,6 @@
 # go-iris 实践 - 货品录入系统
-xss
 
-A tiny server project wrote by a nodejs developer of 2-years who just start learning golang.
+A tiny project wrote by a 2-years nodejs developer.
 
 ### 
 
