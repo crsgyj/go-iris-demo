@@ -33,15 +33,15 @@ type Item struct {
 type ItemList = []Item
 
 // AddGoods - add item to list
-func (g *Goods) AddGoods(source []Item) []redisdb.Z {
+func (g *Goods) AddGoods(source []Item) []*redisdb.Z {
 	utils := g.ctx.Values().Get("utils").(userutils.Utils)
 	score := dateScore(time.Now())
 
-	members := make([]redisdb.Z, len(source))
+	members := make([]*redisdb.Z, len(source))
 	for i, item := range source {
 		item.CreatedDate = strconv.FormatFloat(score, 'f', -1, 64)
 		members[i].Score = score
-		members[i].Member = item.GoodsID
+		members[i].Member = &item.GoodsID
 		m, _ := json.Marshal(item)
 		t := time.Second*3600*24*31 + /* 为了不在同一时间解锁 */ time.Duration(utils.RandInt(600))*time.Second
 		g.redis.Set("goods_item:"+item.GoodsID, m, t)
@@ -68,7 +68,7 @@ func (g *Goods) Suggest(goodsID string) []string {
 		result *redisdb.StringSliceCmd
 	)
 	if goodsID != "" {
-		result = g.redis.ZRangeByLex("goods_zset", redisdb.ZRangeBy{
+		result = g.redis.ZRangeByLex("goods_zset", &redisdb.ZRangeBy{
 			Min:    "[" + goodsID,
 			Max:    "+",
 			Offset: offset,
@@ -90,7 +90,7 @@ func (g *Goods) List(listOptions *ListOptions) iris.Map {
 	// Get StringSlice
 	if listOptions.GoodsID != "" {
 		count = 0
-		result = g.redis.ZRangeByLex("goods_zset", redisdb.ZRangeBy{
+		result = g.redis.ZRangeByLex("goods_zset", &redisdb.ZRangeBy{
 			Min:    "[" + listOptions.GoodsID,
 			Max:    "+",
 			Offset: offset,
