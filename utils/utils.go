@@ -22,9 +22,10 @@ type UtilsOptions struct {
 
 // HTTPErr - httpError struct with Status Error, Code
 type HTTPErr struct {
-	Status int
-	Error  error
-	Code   int64
+	Status  int
+	Error   error
+	Code    int64
+	Restful bool
 }
 
 // New - add utils to ctx
@@ -37,12 +38,15 @@ func New(options UtilsOptions) iris.Handler {
 }
 
 // HTTPError - handler HTTPError callback
-func (u *Utils) HTTPError(httpErr HTTPErr) {
+func (u *Utils) HTTPError(httpErr *HTTPErr) {
 	ctx := u.ctx
-	ctx.StatusCode(httpErr.Status)
+	if httpErr.Restful {
+		ctx.StatusCode(httpErr.Status)
+	}
 	ctx.JSON(iris.Map{
 		"message": httpErr.Error.Error(),
 		"code":    httpErr.Code,
+		"data":    nil,
 	})
 }
 
@@ -70,7 +74,6 @@ func (u *Utils) HTTPSuccess(succBody SuccBody) {
 			"message": succBody.Message,
 		})
 	}
-
 }
 
 // RandString - return a random String

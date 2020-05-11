@@ -2,8 +2,8 @@ package service
 
 import (
 	"bytes"
-	"comm-filter/redis"
-	"comm-filter/utils"
+	redisdb "comm-filter/redis"
+	userutils "comm-filter/utils"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -23,43 +23,44 @@ type User struct {
 }
 
 // Login 登录
-func (u *User) Login() (data iris.Map, err error) {
+func (u *User) Login() (data iris.Map, httpErr *userutils.HTTPErr) {
 	// Context
 	ctx := u.ctx
 	// utils
 	utils := ctx.Values().Get("utils").(userutils.Utils)
 	formUser := redisdb.UserModel{}
 	if err := ctx.ReadJSON(&formUser); err != nil {
-		utils.HTTPError(userutils.HTTPErr{
-			Status: iris.StatusNotAcceptable,
-			Error:  err,
-			Code:   40001,
-		})
-		return nil, err
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotAcceptable,
+			Error:   err,
+			Code:    40001,
+			Restful: true,
+		}
+		return
 	}
 	// 查询用户信息
 	userInfoStr := u.redis.Get("user:" + formUser.Username).Val()
 	log.Println(formUser.Username, userInfoStr, u.redis.Get("user:"+formUser.Username))
 	if userInfoStr == "" {
-		err := errors.New("用户不存在")
-		utils.HTTPError(userutils.HTTPErr{
-			Status: iris.StatusNotAcceptable,
-			Error:  err,
-			Code:   40001,
-		})
-		return nil, err
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotAcceptable,
+			Error:   errors.New("用户不存在"),
+			Code:    40001,
+			Restful: true,
+		}
+		return
 	}
 	// jsonParse
 	userInfo := &redisdb.UserModel{}
 	json.Unmarshal([]byte(userInfoStr), userInfo)
 	if formUser.Password != userInfo.Password {
-		err := errors.New("密码错误")
-		utils.HTTPError(userutils.HTTPErr{
-			Status: iris.StatusNotAcceptable,
-			Error:  err,
-			Code:   40001,
-		})
-		return nil, err
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotAcceptable,
+			Error:   errors.New("密码错误"),
+			Code:    40001,
+			Restful: true,
+		}
+		return
 	}
 	var buffer bytes.Buffer
 	userJSONbyte, _ := json.Marshal(userInfo)
@@ -76,14 +77,11 @@ func (u *User) Login() (data iris.Map, err error) {
 		Path:   "/",
 	})
 
-	// ctx.JSON(iris.Map{
-	// 	"success": true,
-	// 	"token":   md5str,
-	// })
-	return iris.Map{
+	data = iris.Map{
 		"user":  userInfo.Username,
 		"token": md5str,
-	}, nil
+	}
+	return
 }
 
 // Logout - 登出
@@ -95,32 +93,38 @@ func (u *User) Logout() {
 }
 
 // Profile - 获取用户数据
-func (u *User) Profile() (userProfile redisdb.UserModel, err userutils.HTTPErr) {
+func (u *User) Profile() (userProfile *redisdb.UserModel, httpErr *userutils.HTTPErr) {
 	token := u.ctx.GetCookie("token")
 	if token == "" {
-		return redisdb.UserModel{}, userutils.HTTPErr{
-			Status: iris.StatusUnauthorized,
-			Error:  errors.New("用户未登录"),
-			Code:   40001,
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusUnauthorized,
+			Error:   errors.New("用户未登录"),
+			Code:    40001,
+			Restful: true,
 		}
+		return
 	}
 	currUserStr := u.redis.Get("access_token:" + token).Val()
 	if currUserStr == "" {
-		return redisdb.UserModel{}, userutils.HTTPErr{
-			Status: iris.StatusUnauthorized,
-			Error:  errors.New("用户未登录"),
-			Code:   40001,
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusUnauthorized,
+			Error:   errors.New("用户未登录"),
+			Code:    40001,
+			Restful: true,
 		}
+		return
 	}
 
-	currUser := redisdb.UserModel{}
-	if err := json.Unmarshal([]byte(currUserStr), &currUser); err != nil {
+	userProfile = &redisdb.UserModel{}
+	if err := json.Unmarshal([]byte(currUserStr), userProfile); err != nil {
 		u.redis.Del("access_token:" + token)
-		return redisdb.UserModel{}, userutils.HTTPErr{
-			Status: iris.StatusNotAcceptable,
-			Error:  errors.New("未知错误，请重新登录"),
-			Code:   40001,
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotAcceptable,
+			Error:   errors.New("未知错误，请重新登录"),
+			Code:    40001,
+			Restful: true,
 		}
+		return
 	}
-	return currUser, userutils.HTTPErr{}
+	return
 }

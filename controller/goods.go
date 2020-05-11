@@ -2,7 +2,7 @@ package controller
 
 import (
 	"comm-filter/service"
-	"comm-filter/utils"
+	userutils "comm-filter/utils"
 	"errors"
 
 	"gopkg.in/go-playground/validator.v9"
@@ -37,7 +37,7 @@ func newList(ctx iris.Context) {
 	for _, item := range data.List {
 		err := validate.Struct(item)
 		if err != nil {
-			utils.HTTPError(userutils.HTTPErr{
+			utils.HTTPError(&userutils.HTTPErr{
 				Status: iris.StatusNotAcceptable,
 				Error:  err,
 				Code:   40006,
@@ -136,7 +136,7 @@ func validateGetListParams(ctx iris.Context) {
 	err := validate.Struct(listOptions)
 	// 校验错误
 	if err != nil {
-		utils.HTTPError(userutils.HTTPErr{
+		utils.HTTPError(&userutils.HTTPErr{
 			Status: iris.StatusNotAcceptable,
 			Error:  err,
 			Code:   40006,
@@ -160,7 +160,7 @@ func updateValidation(ctx iris.Context) {
 	}{}
 	err := ctx.ReadJSON(postData)
 	if err != nil {
-		utils.HTTPError(userutils.HTTPErr{
+		utils.HTTPError(&userutils.HTTPErr{
 			Status: iris.StatusNotAcceptable,
 			Error:  err,
 			Code:   40006,
@@ -171,7 +171,7 @@ func updateValidation(ctx iris.Context) {
 	item := &postData.Item
 
 	if item.GoodsID == "" {
-		utils.HTTPError(userutils.HTTPErr{
+		utils.HTTPError(&userutils.HTTPErr{
 			Status: iris.StatusNotAcceptable,
 			Error:  errors.New("参数错误"),
 			Code:   40006,

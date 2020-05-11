@@ -2,7 +2,7 @@ package controller
 
 import (
 	"comm-filter/service"
-	"comm-filter/utils"
+	userutils "comm-filter/utils"
 
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/core/router"
@@ -28,7 +28,7 @@ func loginRequired(ctx iris.Context) {
 	service := ctx.Values().Get("service").(service.Service)
 	utils := ctx.Values().Get("utils").(userutils.Utils)
 	profile, err := service.User.Profile()
-	if err.Error != nil {
+	if err != nil {
 		utils.HTTPError(err)
 		return
 	}

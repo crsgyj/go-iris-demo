@@ -41,7 +41,7 @@ func (g *Goods) AddGoods(source []Item) []redisdb.Z {
 	for i, item := range source {
 		item.CreatedDate = strconv.FormatFloat(score, 'f', -1, 64)
 		members[i].Score = score
-		members[i].Member = &item.GoodsID
+		members[i].Member = item.GoodsID
 		m, _ := json.Marshal(item)
 		t := time.Second*3600*24*31 + /* 为了不在同一时间解锁 */ time.Duration(utils.RandInt(600))*time.Second
 		g.redis.Set("goods_item:"+item.GoodsID, m, t)
@@ -136,16 +136,17 @@ func (g *Goods) List(listOptions *ListOptions) iris.Map {
 }
 
 // UpdateItem - 更新某一项
-func (g *Goods) UpdateItem(item *Item) (httpErr userutils.HTTPErr) {
+func (g *Goods) UpdateItem(item *Item) (httpErr *userutils.HTTPErr) {
 	utils := g.ctx.Values().Get("utils").(userutils.Utils)
 	// ZRANK key member
 	score := g.redis.ZScore("goods_zset", item.GoodsID)
 
 	if score.Err() != nil {
-		httpErr = userutils.HTTPErr{
-			Status: iris.StatusNotFound,
-			Error:  errors.New("该货品不存在或已删除"),
-			Code:   40004,
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotFound,
+			Error:   errors.New("该货品不存在或已删除"),
+			Code:    40004,
+			Restful: true,
 		}
 		return
 	}
@@ -158,15 +159,16 @@ func (g *Goods) UpdateItem(item *Item) (httpErr userutils.HTTPErr) {
 }
 
 // DelItem - 删除某一项
-func (g *Goods) DelItem(goodsID string) (httpErr userutils.HTTPErr) {
+func (g *Goods) DelItem(goodsID string) (httpErr *userutils.HTTPErr) {
 	// ZRANK key member
 	score := g.redis.ZScore("goods_zset", goodsID)
 
 	if score.Err() != nil {
-		httpErr = userutils.HTTPErr{
-			Status: iris.StatusNotFound,
-			Error:  errors.New("该货品不存在或已删除"),
-			Code:   40004,
+		httpErr = &userutils.HTTPErr{
+			Status:  iris.StatusNotFound,
+			Error:   errors.New("该货品不存在或已删除"),
+			Code:    40004,
+			Restful: true,
 		}
 		return
 	}

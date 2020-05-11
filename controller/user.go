@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"comm-filter/redis"
+	redisdb "comm-filter/redis"
 	"comm-filter/service"
-	"comm-filter/utils"
+	userutils "comm-filter/utils"
 
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/core/router"
@@ -24,13 +24,16 @@ func userRoutes(p router.Party) {
 func userLogin(ctx iris.Context) {
 	utils := ctx.Values().Get("utils").(userutils.Utils)
 	service := ctx.Values().Get("service").(service.Service)
-	data, _ := service.User.Login()
-	if data != nil {
-		utils.HTTPSuccess(userutils.SuccBody{
-			Data:    data,
-			Restful: true,
-		})
+	data, err := service.User.Login()
+	if err != nil {
+		utils.HTTPError(err)
+		return
 	}
+
+	utils.HTTPSuccess(userutils.SuccBody{
+		Data:    data,
+		Restful: true,
+	})
 }
 
 // userLogout - route Handler of user logout
@@ -48,7 +51,7 @@ func userLogout(ctx iris.Context) {
 // profile - route handler of get user profile
 func profile(ctx iris.Context) {
 	utils := ctx.Values().Get("utils").(userutils.Utils)
-	currUser := ctx.Values().Get("currUser").(redisdb.UserModel)
+	currUser := ctx.Values().Get("currUser").(*redisdb.UserModel)
 
 	utils.HTTPSuccess(userutils.SuccBody{
 		Data: iris.Map{
