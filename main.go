@@ -3,9 +3,9 @@ package main
 import (
 	"comm-filter/config"
 	"comm-filter/controller"
-	"comm-filter/redis"
+	redisdb "comm-filter/redis"
 	"comm-filter/service"
-	"comm-filter/utils"
+	userutils "comm-filter/utils"
 
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/rs/cors"

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"comm-filter/redis"
-	"comm-filter/utils"
+	redisdb "comm-filter/redis"
+	userutils "comm-filter/utils"
 	"encoding/json"
 	"errors"
 	"log"
@@ -33,11 +33,11 @@ type Item struct {
 type ItemList = []Item
 
 // AddGoods - add item to list
-func (g *Goods) AddGoods(source []Item) []*redisdb.Z {
+func (g *Goods) AddGoods(source []Item) []redisdb.Z {
 	utils := g.ctx.Values().Get("utils").(userutils.Utils)
 	score := dateScore(time.Now())
 
-	members := make([]*redisdb.Z, len(source))
+	members := make([]redisdb.Z, len(source))
 	for i, item := range source {
 		item.CreatedDate = strconv.FormatFloat(score, 'f', -1, 64)
 		members[i].Score = score
@@ -68,7 +68,7 @@ func (g *Goods) Suggest(goodsID string) []string {
 		result *redisdb.StringSliceCmd
 	)
 	if goodsID != "" {
-		result = g.redis.ZRangeByLex("goods_zset", &redisdb.ZRangeBy{
+		result = g.redis.ZRangeByLex("goods_zset", redisdb.ZRangeBy{
 			Min:    "[" + goodsID,
 			Max:    "+",
 			Offset: offset,
@@ -82,15 +82,19 @@ func (g *Goods) Suggest(goodsID string) []string {
 
 // List - 获取分页列表
 func (g *Goods) List(listOptions *ListOptions) iris.Map {
-	offset := (listOptions.Page - 1) * listOptions.PerPage
-	var list = make([]*Item, 0)
-	var result *redisdb.StringSliceCmd
+	var (
+		err    error
+		offset = (listOptions.Page - 1) * listOptions.PerPage
+		list   = make([]*Item, 0)
+		result *redisdb.StringSliceCmd
+		count  int64
+	)
 	// 总数
-	count := g.redis.ZCount("goods_zset", "0", "30000101").Val()
+	count = g.redis.ZCount("goods_zset", "0", "30000101").Val()
 	// Get StringSlice
 	if listOptions.GoodsID != "" {
 		count = 0
-		result = g.redis.ZRangeByLex("goods_zset", &redisdb.ZRangeBy{
+		result = g.redis.ZRangeByLex("goods_zset", redisdb.ZRangeBy{
 			Min:    "[" + listOptions.GoodsID,
 			Max:    "+",
 			Offset: offset,
@@ -108,8 +112,7 @@ func (g *Goods) List(listOptions *ListOptions) iris.Map {
 			continue
 		}
 		// jsonParse
-		err := json.Unmarshal([]byte(data), item)
-		if err != nil {
+		if json.Unmarshal([]byte(data), item); err != nil {
 			list = append(list, &Item{GoodsID: gid, Tag: "数据错误：" + data})
 			continue
 		}
@@ -133,37 +136,39 @@ func (g *Goods) List(listOptions *ListOptions) iris.Map {
 }
 
 // UpdateItem - 更新某一项
-func (g *Goods) UpdateItem(item *Item) userutils.HTTPErr {
+func (g *Goods) UpdateItem(item *Item) (httpErr userutils.HTTPErr) {
 	utils := g.ctx.Values().Get("utils").(userutils.Utils)
 	// ZRANK key member
 	score := g.redis.ZScore("goods_zset", item.GoodsID)
 
 	if score.Err() != nil {
-		return userutils.HTTPErr{
+		httpErr = userutils.HTTPErr{
 			Status: iris.StatusNotFound,
 			Error:  errors.New("该货品不存在或已删除"),
 			Code:   40004,
 		}
+		return
 	}
 
 	rest := restExpires(int(score.Val()), utils.RandInt(600))
 	m, _ := json.Marshal(item)
 	g.redis.Set("goods_item:"+item.GoodsID, m, rest)
 
-	return userutils.HTTPErr{}
+	return
 }
 
 // DelItem - 删除某一项
-func (g *Goods) DelItem(goodsID string) userutils.HTTPErr {
+func (g *Goods) DelItem(goodsID string) (httpErr userutils.HTTPErr) {
 	// ZRANK key member
 	score := g.redis.ZScore("goods_zset", goodsID)
 
 	if score.Err() != nil {
-		return userutils.HTTPErr{
+		httpErr = userutils.HTTPErr{
 			Status: iris.StatusNotFound,
 			Error:  errors.New("该货品不存在或已删除"),
 			Code:   40004,
 		}
+		return
 	}
 
 	result1 := g.redis.ZRem("goods_zset", goodsID)
@@ -171,7 +176,7 @@ func (g *Goods) DelItem(goodsID string) userutils.HTTPErr {
 	log.Println(result1)
 	log.Println(result2)
 
-	return userutils.HTTPErr{}
+	return
 }
 
 // DateScore - score by date
@@ -179,13 +184,14 @@ func dateScore(date time.Time) float64 {
 	return float64(date.Year()*10000 + int(date.Month())*100 + date.Day())
 }
 
-func restExpires(score int, randT int) time.Duration {
+// 计算剩余日子
+func restExpires(score int, randT int) (rest time.Duration) {
 	s := strconv.Itoa(score)
 	year, _ := strconv.Atoi(s[:4])
 	month, _ := strconv.Atoi(s[4:6])
 	day, _ := strconv.Atoi(s[6:])
 	t := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
 	dur := time.Since(t)
-	rest := time.Second*3600*24*31 - dur + time.Duration(randT)*time.Second
-	return rest
+	rest = time.Second*3600*24*31 - dur + time.Duration(randT)*time.Second
+	return
 }

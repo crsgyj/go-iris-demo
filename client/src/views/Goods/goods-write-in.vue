@@ -20,6 +20,7 @@
         <el-button type="primary" @click="translate" :disabled="!list || !list.length">百度翻译</el-button>
         <el-button type="primary" :disabled="!canWriteIn" @click="writeIn">录入数据</el-button>
       </div>
+      <div style="font-size: 12px; line-height: 3; color: #999">表格样式为: 货品编码，名称，地址(从第二行读取)</div>
       <!-- btns:end -->
       <!-- table -->
       <div ref="table">

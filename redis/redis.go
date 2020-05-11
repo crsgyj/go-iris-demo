@@ -13,11 +13,19 @@ var (
 )
 
 func New(options *Options) *Client {
+	var (
+		// 连接错误
+		connErr error
+	)
 	if Redisdb != nil {
 		return Redisdb
 	}
 
 	Redisdb = redis.NewClient(options)
+
+	if connErr = Redisdb.ClientGetName().Err(); connErr != redis.Nil {
+		panic("数据库连接失败。" + connErr.Error())
+	}
 	// 初始化唯一admin用户
 	initOnlyUser(Redisdb)
 
