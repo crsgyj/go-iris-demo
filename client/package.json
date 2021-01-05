@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@babel/plugin-syntax-async-generators": "^7.2.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "axios-jsonp": "^1.0.2",
     "babel-plugin-component": "^1.1.1",
     "components": "^0.1.0",
