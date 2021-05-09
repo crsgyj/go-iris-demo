@@ -14,7 +14,7 @@
     "babel-plugin-component": "^1.1.1",
     "components": "^0.1.0",
     "element-ui": "^2.9.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "md5": "^2.2.1",
     "parcel-bundler": "^1.12.3",
     "vue": "^2.6.10",
