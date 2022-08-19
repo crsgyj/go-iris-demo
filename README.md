@@ -4,7 +4,7 @@ A tiny project wrote by a 2-years nodejs developer.
 
 ### 
 
-\> before - what's you need: 
+\> dependences: 
 
 * iris  -  "github.com/kataras/iris"
 * redis  -  "github.com/go-redis/redis"
@@ -27,17 +27,17 @@ server:
 ```go
 [dev]:
 $ go run comm-filter
-[build]: run the command and create config file["config.toml"] on ${GOPATH}/bin/config/
-$ go install comm-filter       
+[build]: config "config.toml"
+$ go build comm-filter       
 ```
 
 client: 
 
 ```javascript
 [dev]:
-$ cd client && yarn && yarn serve
+$ yarn && yarn serve
 [build]:
-$ cd client && yarn build
+$ yarn build
 ```
 
 
