@@ -16,8 +16,6 @@ A tiny project wrote by a 2-years nodejs developer.
 database:
  redis
 
- can use docker:
-
 ```bash
 $ docker run -p 6379:6379 --name redis redis@latest
 ```
