@@ -1,6 +1,6 @@
 # go-iris 实践 - 货品录入系统
 
-A tiny project wrote by a 2-years nodejs developer.
+iris+redis server
 
 ### 
 
